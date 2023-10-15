@@ -4,21 +4,20 @@ from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from .models import Record
+from django.contrib import messages
+
 # - Homepage
-
-
 def home(request):
     return render(request, 'webapp/index.html')
 
 # - Register a user
-
-
 def register(request):
     form = CreateUserForm()
     if request.method == "POST":
         form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Account Created Successfully')
             return redirect("login")
     context = {'form': form}
     return render(request, 'webapp/register.html', context=context)
@@ -35,6 +34,7 @@ def login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 auth.login(request, user)
+                messages.success(request, "Login Successfuly!")
                 return redirect("dashboard")
     context = {'form1': form}
     return render(request, 'webapp/my-login.html', context=context)
@@ -54,6 +54,8 @@ def dashboard(request):
 
 def user_logout(request):
     auth.logout(request)
+    messages.success(request, "Logout Successfully!")
+
     return redirect("login")
 
 
@@ -66,6 +68,8 @@ def create_record(request):
         form = CreateRecord(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'You Have Logged In')
+
             return redirect('dashboard')
     context = {'form':form}
     return render(request, 'webapp/create-record.html', context=context)
@@ -81,6 +85,7 @@ def update_record(request, pk):
         form = UpdateRecord(request.POST, instance=record)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Your Record Was Updated Successfully')
             return redirect('dashboard')
     context ={'form':form}
     return render(request,'webapp/update-record.html', context=context)
@@ -99,5 +104,6 @@ def singular_record(request, pk):
 def delete_record (request,pk):
     record = Record.objects.get(id=pk)
     record.delete()
+    messages.success(request, 'Your Record Was Deleted Successfully')
     return redirect('dashboard')
 
